@@ -16,8 +16,8 @@ Example usage:
 #include "common.h"
 #include "graphs.h"
 
-const bool SKIP_UNIVERSAL = false;  // Don't output graphs with universal lines.
-const bool SKIP_N_LINES = true;  // Don't output graphs with >= n lines.
+bool SKIP_UNIVERSAL = false;  // Don't output graphs with universal lines.
+bool SKIP_N_LINES = false;  // Don't output graphs with >= n lines.
 
 
 void GetLine(const Graph& graph, const DistanceMatrixMap& dist, const int i, const int j, std::set<int> *line) {
@@ -46,7 +46,20 @@ void GetLine(const Graph& graph, const DistanceMatrixMap& dist, const int i, con
   }
 }
 
-int main(int, char*[]) {
+int main(int argc, char* argv[]) {
+  for (int i = 1; i < argc; ++i) {
+    std::string arg(argv[i]);
+    if (arg == "-n") {
+      std::cerr << ">dbe will not output graphs with n lines" << std::endl;
+      SKIP_N_LINES = true;
+    } else if (arg == "-u") {
+      std::cerr << ">dbe will not output graphs with universal lines" << std::endl;
+      SKIP_UNIVERSAL = true;
+    } else {
+      Error("Invalid argument " + arg);
+    }
+  }
+
   auto begin_time = Clock::now();
   int num_graphs = 0;
   int num_output_graphs = 0;
