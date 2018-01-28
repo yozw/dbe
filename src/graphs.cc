@@ -33,7 +33,9 @@ boost::optional<Graph> ReadGraph() {
     Error("Loops are not supported");
   }
 
-  return SparseGraphToBgl(sg);
+  Graph graph = SparseGraphToBgl(sg);
+  SG_FREE(sg);
+  return graph;
 }
 
 /** Writes a graph in sparse6 encoding to stdout. **/
@@ -42,6 +44,8 @@ void WriteGraph(const Graph& graph) {
   BglToSparseGraph(graph, sg);
   char* sgraph6 = sgtos6(&sg);
   std::cout << sgraph6;
+  // Note: sgraph6 should not be deallocated, because it refers to global
+  // variable in gtools.c.
   SG_FREE(sg);
 }
 
