@@ -1,6 +1,6 @@
-# De Bruijn-Erdős analyser
+# De Bruijn-Erdős computational combinatorics
 
-Installation and compilation:
+## Installation and compilation
 
 ```
 git clone https://github.com/yozw/dbe.git
@@ -14,6 +14,8 @@ make
 cd ..
 ./make
 ```
+
+## Usage examples
 
 Generate all bipartite graphs of order 5 that have no universal line:
 
