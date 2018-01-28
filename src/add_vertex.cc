@@ -16,7 +16,7 @@ adding a vertex to each of them, and finally removes all isomorphic duplicates.
 #include "common.h"
 #include "graphs.h"
 
-const bool MIN_DEGREE = 2;
+const unsigned int MIN_DEGREE = 2;
 
 int main(int, char *[]) {
   auto begin_time = Clock::now();
