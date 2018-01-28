@@ -43,8 +43,21 @@ instead:
 nauty/geng -b -C 6 | ./add_vertex | nauty/shortg | ./dbe -n | nauty/showg -A
 ```
 
-Paralleling using GNU Parallel:
+Parallellizing using GNU Parallel:
 
 ```
-nauty/geng -b -C 8 | parallel --block 10K --pipe './add_vertex | nauty/shortg' | nauty/shortg | parallel --pipe ./dbe -n | nauty/showg -A > output.txt
+nauty/geng -b -C 11 | parallel --block 10K --pipe './add_vertex | nauty/shortg' | nauty/shortg \
+    | parallel --pipe ./dbe -n | nauty/showg -A > output.txt
+nauty/geng -b -d2 11 | parallel --block 5K --pipe './add_vertex | nauty/shortg' | nauty/shortg \
+    | parallel --block 5M --pipe ./dbe -n | nauty/showg -A > output.txt
 ```
+
+These pipelines do the following:
+
+* Generate a set of base graphs (all 2-connected bipartite of order 11, and all bipartite of order 11 with minimum degree, respectively).
+* Partition that set, and for each partition do the following in parallel: take each graph and add a vertex in every possible way; then, remove isomorphic duplicates.
+* Take the output from the previous stage and remove isomorphic duplicates.
+* From the previous stage, find all graphs that do not have at least n (=12 in this case) distinct lines.
+* Present the results in a human-readable form and write them to `output.txt`.
+
+The output turns out to be empty.
