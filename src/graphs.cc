@@ -12,9 +12,8 @@ boost::optional<std::string> ReadLine() {
     }
     std::getline(std::cin, line);
   } while (line.length() == 0);
-  return line;  
+  return line;
 }
-
 
 /** Reads a sparse6-encoded graph from stdin. **/
 boost::optional<Graph> ReadGraph() {
@@ -27,7 +26,7 @@ boost::optional<Graph> ReadGraph() {
   sparsegraph sg;
   SG_INIT(sg);
   int nloops;
-  char* repr = const_cast<char*>(line.get().c_str());
+  char *repr = const_cast<char *>(line.get().c_str());
   stringtosparsegraph(repr, &sg, &nloops);
   if (nloops != 0) {
     Error("Loops are not supported");
@@ -39,10 +38,10 @@ boost::optional<Graph> ReadGraph() {
 }
 
 /** Writes a graph in sparse6 encoding to stdout. **/
-void WriteGraph(const Graph& graph) {
+void WriteGraph(const Graph &graph) {
   sparsegraph sg;
   BglToSparseGraph(graph, sg);
-  char* sgraph6 = sgtos6(&sg);
+  char *sgraph6 = sgtos6(&sg);
   std::cout << sgraph6;
   // Note: sgraph6 should not be deallocated, because it refers to global
   // variable in gtools.c.
@@ -50,7 +49,7 @@ void WriteGraph(const Graph& graph) {
 }
 
 /** Converts sparsegraph to Boost graph library graph. **/
-Graph SparseGraphToBgl(const sparsegraph& sg) {
+Graph SparseGraphToBgl(const sparsegraph &sg) {
   Graph graph(sg.nv);
   for (int i = 0; i < sg.nv; ++i) {
     int start_index = sg.v[i];
@@ -65,7 +64,7 @@ Graph SparseGraphToBgl(const sparsegraph& sg) {
 }
 
 /** Converts Boost graph library graph to sparsegraph. **/
-void BglToSparseGraph(const Graph& graph, sparsegraph& sg) {
+void BglToSparseGraph(const Graph &graph, sparsegraph &sg) {
   const int num_vertices = boost::num_vertices(graph);
   const int num_edges = boost::num_edges(graph);
 
@@ -75,9 +74,9 @@ void BglToSparseGraph(const Graph& graph, sparsegraph& sg) {
   sg.nv = num_vertices;
   sg.nde = num_edges * 2;
 
-  size_t* vptr = sg.v;
-  int* dptr = sg.d;
-  int* eptr = sg.e;
+  size_t *vptr = sg.v;
+  int *dptr = sg.d;
+  int *eptr = sg.e;
   int cum_degree = 0;
   for (int i = 0; i < num_vertices; ++i) {
     *vptr = cum_degree;

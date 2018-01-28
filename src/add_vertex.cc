@@ -18,10 +18,10 @@ adding a vertex to each of them, and finally removes all isomorphic duplicates.
 
 const bool MIN_DEGREE = 2;
 
-
-int main(int, char*[]) {
+int main(int, char *[]) {
   auto begin_time = Clock::now();
   int num_graphs = 0;
+  std::cerr << ">A add_vertex" << std::endl;
 
   boost::optional<Graph> optional_graph;
   while ((optional_graph = ReadGraph())) {
@@ -49,8 +49,8 @@ int main(int, char*[]) {
   }
 
   auto end_time = Clock::now();
-  std::cerr << ">add_vertex generated " << num_graphs << " graphs in " 
-              << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count() / 1000.0
-              << " seconds" << std::endl;
+  std::cerr << ">Z add_vertex generated " << num_graphs << " graphs in "
+            << GetMillisecondsSince(begin_time) / 1000.0 << " seconds"
+            << std::endl;
   return 0;
-} 
+}

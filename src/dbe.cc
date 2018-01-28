@@ -16,13 +16,13 @@ Example usage:
 #include "common.h"
 #include "graphs.h"
 
-bool SKIP_UNIVERSAL = false;  // Don't output graphs with universal lines.
-bool SKIP_N_LINES = false;  // Don't output graphs with >= n lines.
+bool SKIP_UNIVERSAL = false; // Don't output graphs with universal lines.
+bool SKIP_N_LINES = false;   // Don't output graphs with >= n lines.
 
 const int MAX_N = 31;
 
-
-void GetLine(const Graph& graph, const DistanceMatrixMap& dist, const int i, const int j, std::bitset<MAX_N> *line) {
+void GetLine(const Graph &graph, const DistanceMatrixMap &dist, const int i,
+             const int j, std::bitset<MAX_N> *line) {
   const int num_vertices = boost::num_vertices(graph);
   assert(i >= 0);
   assert(j >= 0);
@@ -48,19 +48,22 @@ void GetLine(const Graph& graph, const DistanceMatrixMap& dist, const int i, con
   }
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   for (int i = 1; i < argc; ++i) {
     std::string arg(argv[i]);
     if (arg == "-n") {
       std::cerr << ">dbe will not output graphs with n lines" << std::endl;
       SKIP_N_LINES = true;
     } else if (arg == "-u") {
-      std::cerr << ">dbe will not output graphs with universal lines" << std::endl;
+      std::cerr << ">dbe will not output graphs with universal lines"
+                << std::endl;
       SKIP_UNIVERSAL = true;
     } else {
       Error("Invalid argument " + arg);
     }
   }
+
+  std::cerr << ">A dbe" << std::endl;
 
   auto begin_time = Clock::now();
   int num_graphs = 0;
@@ -76,11 +79,13 @@ int main(int argc, char* argv[]) {
       Error("Graph too large");
     }
 
-    // Perform Floyd-Warshall all-pairs shortest paths to determine pairwise distances.
+    // Perform Floyd-Warshall all-pairs shortest paths to determine pairwise
+    // distances.
     DistanceMatrix distance_matrix(num_vertices);
     DistanceMatrixMap dist(distance_matrix, graph);
     WeightMap weight_map(1);
-    floyd_warshall_all_pairs_shortest_paths(graph, distance_matrix, boost::weight_map(weight_map));
+    floyd_warshall_all_pairs_shortest_paths(graph, distance_matrix,
+                                            boost::weight_map(weight_map));
 
     // Get set of lines.
     std::set<unsigned long> lines;
@@ -107,15 +112,15 @@ int main(int argc, char* argv[]) {
 
     if (should_output) {
       ++num_output_graphs;
-      std::cerr << "Graph " << num_output_graphs << " has " << lines.size() << " lines and " << (has_universal ? "a" : "no")
-        << " universal line." << std::endl;
+      std::cerr << "Graph " << num_output_graphs << " has " << lines.size()
+                << " lines and " << (has_universal ? "a" : "no")
+                << " universal line." << std::endl;
       WriteGraph(graph);
     }
   }
 
-  auto end_time = Clock::now();
-  std::cerr << ">dbe analyzed " << num_graphs << " graphs in " 
-              << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count() / 1000.0
-              << " seconds" << std::endl;
+  std::cerr << ">Z dbe analyzed " << num_graphs << " graphs in "
+            << GetMillisecondsSince(begin_time) / 1000.0 << " seconds"
+            << std::endl;
   return 0;
-} 
+}
