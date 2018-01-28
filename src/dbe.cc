@@ -1,3 +1,11 @@
+/** De Bruijn-Erdos checker for Nauty-generated graphs.
+
+Example usage:
+
+    NAUTY="../nauty26r11"
+    $NAUTY/geng -b -C 6 | ./dbe | $NAUTY/showg -A
+**/
+
 #include <algorithm>
 #include <chrono>
 #include <iostream>
@@ -8,7 +16,8 @@
 #include "common.h"
 #include "graphs.h"
 
-const bool SKIP_UNIVERSAL = true;  // Don't output graphs with universal lines.
+const bool SKIP_UNIVERSAL = false;  // Don't output graphs with universal lines.
+const bool SKIP_N_LINES = true;  // Don't output graphs with >= n lines.
 
 
 void GetLine(const Graph& graph, const DistanceMatrixMap& dist, const int i, const int j, std::set<int> *line) {
@@ -42,20 +51,20 @@ int main(int, char*[]) {
   int num_graphs = 0;
   int num_output_graphs = 0;
 
-  while (true) {
-    boost::optional<Graph> optional_graph = ReadGraph();
-    if (!optional_graph) {
-      break;
-    }
+  boost::optional<Graph> optional_graph;
+  while ((optional_graph = ReadGraph())) {
     ++num_graphs;
 
     Graph graph(optional_graph.get());
     const int num_vertices = boost::num_vertices(graph);
+
+    // Perform Floyd-Warshall all-pairs shortest paths to determine pairwise distances.
     DistanceMatrix distance_matrix(num_vertices);
     DistanceMatrixMap dist(distance_matrix, graph);
     WeightMap weight_map(1);
     floyd_warshall_all_pairs_shortest_paths(graph, distance_matrix, boost::weight_map(weight_map));
 
+    // Calculate number of lines and whether the graph has a universal line.
     bool has_universal = false;
     std::set<std::set<int>> lines;
     for (int i = 0; i < num_vertices; ++i) {
@@ -68,20 +77,26 @@ int main(int, char*[]) {
         }
       }
     }
+
+    // Determine whether to output this graph.
     bool should_output = true;
     if (SKIP_UNIVERSAL) {
-      should_output = !has_universal;
+      should_output &= !has_universal;
     }
+    if (SKIP_N_LINES) {
+      should_output &= lines.size() < num_vertices;
+    }
+
     if (should_output) {
       ++num_output_graphs;
       std::cerr << "Graph " << num_output_graphs << " has " << lines.size() << " lines and " << (has_universal ? "a" : "no")
         << " universal line." << std::endl;
-      OutputGraph(num_output_graphs, graph);
+      WriteGraph(graph);
     }
   }
 
   auto end_time = Clock::now();
-  std::cerr << "> Analyzed " << num_graphs << " graphs in " 
+  std::cerr << ">dbe analyzed " << num_graphs << " graphs in " 
               << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count() / 1000.0
               << " seconds" << std::endl;
   return 0;

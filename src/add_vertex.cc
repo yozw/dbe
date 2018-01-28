@@ -1,5 +1,13 @@
+/** Adds a vertex in every possible way.
+
+Example:
+  NAUTY=../nauty26r11
+  $NAUTY/geng -b 6 | ./add_vertex | $NAUTY/shortg
+
+This example generates all 6-vertex bipartite graphs, then generates all ways of
+adding a vertex to each of them, and finally removes all isomorphic duplicates.
+**/
 #include <algorithm>
-#include <chrono>
 #include <iostream>
 #include <string>
 #include <utility>
@@ -15,12 +23,8 @@ int main(int, char*[]) {
   auto begin_time = Clock::now();
   int num_graphs = 0;
 
-  while (true) {
-    boost::optional<Graph> optional_graph = ReadGraph();
-    if (!optional_graph) {
-      break;
-    }
-
+  boost::optional<Graph> optional_graph;
+  while ((optional_graph = ReadGraph())) {
     const unsigned int num_vertices = boost::num_vertices(optional_graph.get());
 
     // Generate all possible ways of adding one more vertex.
@@ -38,13 +42,14 @@ int main(int, char*[]) {
         }
       }
       if (degree >= MIN_DEGREE) {
-        OutputGraph(++num_graphs, graph);
+        ++num_graphs;
+        WriteGraph(graph);
       }
     }
   }
 
   auto end_time = Clock::now();
-  std::cerr << "> Generated " << num_graphs << " graphs in " 
+  std::cerr << ">add_vertex generated " << num_graphs << " graphs in " 
               << std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count() / 1000.0
               << " seconds" << std::endl;
   return 0;

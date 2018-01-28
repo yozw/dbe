@@ -1,4 +1,7 @@
+#include <chrono>
 #include <iostream>
+
+typedef std::chrono::high_resolution_clock Clock;
 
 template<class T> void Error(T message) {
   std::cerr << "ERROR: " << message << std::endl;
