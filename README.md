@@ -1,4 +1,4 @@
-# De Bruijn-Erdos analyser
+# De Bruijn-Erdős analyser
 
 Installation and compilation:
 
