@@ -42,3 +42,9 @@ instead:
 ```
 nauty/geng -b -C 6 | ./add_vertex | nauty/shortg | ./dbe -n | nauty/showg -A
 ```
+
+Paralleling using GNU Parallel:
+
+```
+nauty/geng -b -C 8 | parallel --block 10K --pipe './add_vertex | nauty/shortg' | nauty/shortg | parallel --pipe ./dbe -n | nauty/showg -A > output.txt
+```

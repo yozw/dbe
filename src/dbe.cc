@@ -19,17 +19,19 @@ Example usage:
 bool SKIP_UNIVERSAL = false;  // Don't output graphs with universal lines.
 bool SKIP_N_LINES = false;  // Don't output graphs with >= n lines.
 
+const int MAX_N = 31;
 
-void GetLine(const Graph& graph, const DistanceMatrixMap& dist, const int i, const int j, std::set<int> *line) {
+
+void GetLine(const Graph& graph, const DistanceMatrixMap& dist, const int i, const int j, std::bitset<MAX_N> *line) {
   const int num_vertices = boost::num_vertices(graph);
   assert(i >= 0);
   assert(j >= 0);
   assert(i < num_vertices);
   assert(j < num_vertices);
 
-  line->clear();
-  line->insert(i);
-  line->insert(j);
+  line->reset();
+  line->set(i);
+  line->set(j);
 
   const int dij = dist[i][j];
   for (int k = 0; k < num_vertices; ++k) {
@@ -41,7 +43,7 @@ void GetLine(const Graph& graph, const DistanceMatrixMap& dist, const int i, con
 
     // i-j-k or j-i-k or i-k-j
     if ((dij + djk == dik) || (dij + dik == djk) || (dik + djk == dij)) {
-      line->insert(k);
+      line->set(k);
     }
   }
 }
@@ -70,6 +72,9 @@ int main(int argc, char* argv[]) {
 
     Graph graph(optional_graph.get());
     const int num_vertices = boost::num_vertices(graph);
+    if (num_vertices > MAX_N) {
+      Error("Graph too large");
+    }
 
     // Perform Floyd-Warshall all-pairs shortest paths to determine pairwise distances.
     DistanceMatrix distance_matrix(num_vertices);
@@ -77,19 +82,19 @@ int main(int argc, char* argv[]) {
     WeightMap weight_map(1);
     floyd_warshall_all_pairs_shortest_paths(graph, distance_matrix, boost::weight_map(weight_map));
 
-    // Calculate number of lines and whether the graph has a universal line.
-    bool has_universal = false;
-    std::set<std::set<int>> lines;
+    // Get set of lines.
+    std::set<unsigned long> lines;
+    std::bitset<MAX_N> line;
     for (int i = 0; i < num_vertices; ++i) {
       for (int j = i + 1; j < num_vertices; ++j) {
-        std::set<int> line;
         GetLine(graph, dist, i, j, &line);
-        lines.insert(line);
-        if (line.size() == num_vertices) {
-          has_universal = true;
-        }
+        lines.insert(line.to_ulong());
       }
     }
+
+    // Determine whether the graph has a universal line.
+    const unsigned long universal_line = (1L << num_vertices) - 1;
+    const bool has_universal = lines.find(universal_line) != lines.end();
 
     // Determine whether to output this graph.
     bool should_output = true;
