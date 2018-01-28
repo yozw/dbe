@@ -26,14 +26,19 @@ isomorphic duplicates, and find all graphs among the resulting graphs that have 
 universal line:
 
 ```
-nauty/geng -b 5 | ./add_vertex | nauty/shortg | ./dbe -u | nauty/showg -A
+nauty/geng -b 6 | ./add_vertex | nauty/shortg | ./dbe -u | nauty/showg -A
 ```
 
-(There are 43 such graphs).
+There are 172 such graphs.
 To impose in addition that the starting bipartite graphs are biconnected:
 
 ```
-nauty/geng -b -C 5 | ./add_vertex | nauty/shortg | ./dbe -u | nauty/showg -A
+nauty/geng -b -C 6 | ./add_vertex | nauty/shortg | ./dbe -u | nauty/showg -A
 ```
 
-To are no such graphs.
+There are 69 such graphs. To output graphs that do not have n distinct lines
+instead:
+
+```
+nauty/geng -b -C 6 | ./add_vertex | nauty/shortg | ./dbe -n | nauty/showg -A
+```
