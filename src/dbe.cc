@@ -23,18 +23,20 @@ DEFINE_bool(n, false, "Do not output graphs with |V(G)| lines");
 DEFINE_int32(nmin, 0,
              "Only count lines induced by vertices at at least this distance");
 DEFINE_int32(nmax, INT_MAX,
-             "Only count lines induced by vertices at at least this distance");
+             "Only count lines induced by vertices at at "
+             "least this distance");
 DEFINE_bool(u, false, "Do not output graphs with a universal line");
-DEFINE_int32(
-    umin, 0,
-    "Only count universal lines induced by vertices at at least this distance");
+DEFINE_int32(umin, 0,
+             "Only count universal lines induced by vertices "
+             "at at least this distance");
 DEFINE_int32(
     umax, INT_MAX,
     "Only count universal lines induced by vertices at at least this distance");
-DEFINE_bool(z, false,
-            "Do not output graphs that satisfy the "
-            "Aboulker-Matamala-Rochet-Zamora conjecture");
-DEFINE_int32(o, INT_MAX, "Output format");
+DEFINE_int32(zmin, INT_MIN,
+             "Only output graphs what a AMRZ gap of at least this number");
+DEFINE_int32(zmax, INT_MAX,
+             "Only output graphs what a AMRZ gap of at most this number");
+DEFINE_int32(o, 0, "Output format");
 
 const int MAX_N = 31;
 
@@ -105,12 +107,14 @@ int main(int argc, char *argv[]) {
     std::set<unsigned long> lines;
     std::bitset<MAX_N> line;
     int num_universal = 0;
+    int num_line_pairs = 0;
     for (int i = 0; i < num_vertices; ++i) {
       for (int j = i + 1; j < num_vertices; ++j) {
         GetLine(graph, dist, i, j, &line);
         const unsigned long line_as_long = line.to_ulong();
         const int d = dist[i][j];
         if ((d >= FLAGS_nmin) && (d <= FLAGS_nmax)) {
+          ++num_line_pairs;
           lines.insert(line_as_long);
         }
         if (line_as_long == universal_line) {
@@ -122,25 +126,26 @@ int main(int argc, char *argv[]) {
     }
 
     // Determine whether to output this graph.
+    const int amrz_sum = lines.size() + num_universal;
+    const int amrz_gap = amrz_sum - num_vertices;
     const bool skip = (FLAGS_u && num_universal > 0) ||
                       (FLAGS_n && lines.size() >= num_vertices) ||
-                      (FLAGS_z && lines.size() + num_universal >= num_vertices);
+                      (amrz_gap < FLAGS_zmin) ||
+                      (amrz_gap > FLAGS_zmax);
 
     if (!skip) {
       ++num_output_graphs;
       switch (FLAGS_o) {
       case 0: {
-        int amrz_sum = lines.size() + num_universal;
-        int amrz_gap = amrz_sum - num_vertices;
         std::cerr << "Graph " << num_output_graphs << " has " << lines.size()
-                  << " lines and " << num_universal
+                  << " lines (from " << num_line_pairs << " pairs) and " << num_universal
                   << " universal lines (AMRZ gap " << amrz_gap << ")"
                   << std::endl;
         WriteGraph(graph);
         break;
       }
       case 1:
-        std::cout << lines.size() << "," << num_universal << std::endl;
+        std::cout << lines.size() << "," << num_universal << "," << amrz_gap << std::endl;
       }
     }
   }
