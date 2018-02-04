@@ -18,6 +18,7 @@ Example usage:
 
 bool SKIP_UNIVERSAL = false; // Don't output graphs with universal lines.
 bool SKIP_N_LINES = false;   // Don't output graphs with >= n lines.
+bool SKIP_AMRZ = false;      // Don't output graphs that satisfy the Aboulker-Matamala-Rochet-Zamora conjecture.
 
 const int MAX_N = 31;
 
@@ -58,6 +59,10 @@ int main(int argc, char *argv[]) {
       std::cerr << ">dbe will not output graphs with universal lines"
                 << std::endl;
       SKIP_UNIVERSAL = true;
+    } else if (arg == "-z") {
+      std::cerr << ">dbe will not output graphs that satisfy the AMRZ conjecture"
+                << std::endl;
+      SKIP_AMRZ = true;
     } else {
       Error("Invalid argument " + arg);
     }
@@ -87,34 +92,33 @@ int main(int argc, char *argv[]) {
     floyd_warshall_all_pairs_shortest_paths(graph, distance_matrix,
                                             boost::weight_map(weight_map));
 
+    const unsigned long universal_line = (1L << num_vertices) - 1;
+
     // Get set of lines.
     std::set<unsigned long> lines;
     std::bitset<MAX_N> line;
+    int num_universal = 0;
     for (int i = 0; i < num_vertices; ++i) {
       for (int j = i + 1; j < num_vertices; ++j) {
         GetLine(graph, dist, i, j, &line);
-        lines.insert(line.to_ulong());
+        const unsigned long line_as_long = line.to_ulong();
+        lines.insert(line_as_long);
+        if (line_as_long == universal_line) {
+          ++num_universal;
+        }
       }
     }
 
-    // Determine whether the graph has a universal line.
-    const unsigned long universal_line = (1L << num_vertices) - 1;
-    const bool has_universal = lines.find(universal_line) != lines.end();
-
     // Determine whether to output this graph.
-    bool should_output = true;
-    if (SKIP_UNIVERSAL) {
-      should_output &= !has_universal;
-    }
-    if (SKIP_N_LINES) {
-      should_output &= lines.size() < num_vertices;
-    }
+    const bool skip = (SKIP_UNIVERSAL && num_universal > 0) ||
+                      (SKIP_N_LINES && lines.size() >= num_vertices) ||
+                      (SKIP_AMRZ && lines.size() + num_universal >= num_vertices);
 
-    if (should_output) {
+    if (!skip) {
       ++num_output_graphs;
       std::cerr << "Graph " << num_output_graphs << " has " << lines.size()
-                << " lines and " << (has_universal ? "a" : "no")
-                << " universal line." << std::endl;
+                << " lines and " << num_universal
+                << " universal lines." << std::endl;
       WriteGraph(graph);
     }
   }
