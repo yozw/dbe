@@ -8,19 +8,42 @@ Example usage:
 
 #include <algorithm>
 #include <chrono>
+#include <climits>
 #include <iostream>
 #include <string>
 #include <utility>
 #include <vector>
 
+#include <gflags/gflags.h>
+
 #include "common.h"
 #include "graphs.h"
 
-bool SKIP_UNIVERSAL = false; // Don't output graphs with universal lines.
-bool SKIP_N_LINES = false;   // Don't output graphs with >= n lines.
-bool SKIP_AMRZ = false;      // Don't output graphs that satisfy the Aboulker-Matamala-Rochet-Zamora conjecture.
+DEFINE_bool(n, false, "Do not output graphs with |V(G)| lines");
+DEFINE_int32(nmin, 0,
+             "Only count lines induced by vertices at at least this distance");
+DEFINE_int32(nmax, INT_MAX,
+             "Only count lines induced by vertices at at least this distance");
+DEFINE_bool(u, false, "Do not output graphs with a universal line");
+DEFINE_int32(
+    umin, 0,
+    "Only count universal lines induced by vertices at at least this distance");
+DEFINE_int32(
+    umax, INT_MAX,
+    "Only count universal lines induced by vertices at at least this distance");
+DEFINE_bool(z, false,
+            "Do not output graphs that satisfy the "
+            "Aboulker-Matamala-Rochet-Zamora conjecture");
+DEFINE_int32(o, INT_MAX, "Output format");
 
 const int MAX_N = 31;
+
+void ParseCommandLineFlags(int argc, char *argv[]) {
+  gflags::SetUsageMessage(
+      "De Bruijn-Erdos checker for Nauty-generated graphs.");
+  gflags::SetVersionString("1.0.0");
+  gflags::ParseCommandLineFlags(&argc, &argv, true);
+}
 
 void GetLine(const Graph &graph, const DistanceMatrixMap &dist, const int i,
              const int j, std::bitset<MAX_N> *line) {
@@ -50,23 +73,7 @@ void GetLine(const Graph &graph, const DistanceMatrixMap &dist, const int i,
 }
 
 int main(int argc, char *argv[]) {
-  for (int i = 1; i < argc; ++i) {
-    std::string arg(argv[i]);
-    if (arg == "-n") {
-      std::cerr << ">dbe will not output graphs with n lines" << std::endl;
-      SKIP_N_LINES = true;
-    } else if (arg == "-u") {
-      std::cerr << ">dbe will not output graphs with universal lines"
-                << std::endl;
-      SKIP_UNIVERSAL = true;
-    } else if (arg == "-z") {
-      std::cerr << ">dbe will not output graphs that satisfy the AMRZ conjecture"
-                << std::endl;
-      SKIP_AMRZ = true;
-    } else {
-      Error("Invalid argument " + arg);
-    }
-  }
+  ParseCommandLineFlags(argc, argv);
 
   std::cerr << ">A dbe" << std::endl;
 
@@ -102,29 +109,46 @@ int main(int argc, char *argv[]) {
       for (int j = i + 1; j < num_vertices; ++j) {
         GetLine(graph, dist, i, j, &line);
         const unsigned long line_as_long = line.to_ulong();
-        lines.insert(line_as_long);
+        const int d = dist[i][j];
+        if ((d >= FLAGS_nmin) && (d <= FLAGS_nmax)) {
+          lines.insert(line_as_long);
+        }
         if (line_as_long == universal_line) {
-          ++num_universal;
+          if ((d >= FLAGS_umin) && (d <= FLAGS_umax)) {
+            ++num_universal;
+          }
         }
       }
     }
 
     // Determine whether to output this graph.
-    const bool skip = (SKIP_UNIVERSAL && num_universal > 0) ||
-                      (SKIP_N_LINES && lines.size() >= num_vertices) ||
-                      (SKIP_AMRZ && lines.size() + num_universal >= num_vertices);
+    const bool skip = (FLAGS_u && num_universal > 0) ||
+                      (FLAGS_n && lines.size() >= num_vertices) ||
+                      (FLAGS_z && lines.size() + num_universal >= num_vertices);
 
     if (!skip) {
       ++num_output_graphs;
-      std::cerr << "Graph " << num_output_graphs << " has " << lines.size()
-                << " lines and " << num_universal
-                << " universal lines." << std::endl;
-      WriteGraph(graph);
+      switch (FLAGS_o) {
+      case 0: {
+        int amrz_sum = lines.size() + num_universal;
+        int amrz_gap = amrz_sum - num_vertices;
+        std::cerr << "Graph " << num_output_graphs << " has " << lines.size()
+                  << " lines and " << num_universal
+                  << " universal lines (AMRZ gap " << amrz_gap << ")"
+                  << std::endl;
+        WriteGraph(graph);
+        break;
+      }
+      case 1:
+        std::cout << lines.size() << "," << num_universal << std::endl;
+      }
     }
   }
 
   std::cerr << ">Z dbe analyzed " << num_graphs << " graphs in "
             << GetMillisecondsSince(begin_time) / 1000.0 << " seconds"
             << std::endl;
+
+  gflags::ShutDownCommandLineFlags();
   return 0;
 }
