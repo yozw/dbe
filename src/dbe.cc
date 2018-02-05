@@ -40,6 +40,15 @@ DEFINE_int32(o, 0, "Output format");
 
 const int MAX_N = 31;
 
+struct GraphInfo {
+  int num_lines;
+  int num_universal;
+  int num_universal_dist1;
+  int num_universal_dist2;
+  int num_vertices;
+  int num_line_pairs;
+};
+
 void ParseCommandLineFlags(int argc, char *argv[]) {
   gflags::SetUsageMessage(
       "De Bruijn-Erdos checker for Nauty-generated graphs.");
@@ -74,6 +83,58 @@ void GetLine(const Graph &graph, const DistanceMatrixMap &dist, const int i,
   }
 }
 
+void AnalyzeGraph(const Graph& graph, GraphInfo* graph_info) {
+  const int num_vertices = boost::num_vertices(graph);
+  if (num_vertices > MAX_N) {
+    Error("Graph too large");
+  }
+  const unsigned long universal_line = (1L << num_vertices) - 1;
+
+  // Perform Floyd-Warshall all-pairs shortest paths to determine pairwise
+  // distances.
+  DistanceMatrix distance_matrix(num_vertices);
+  DistanceMatrixMap dist(distance_matrix, graph);
+  WeightMap weight_map(1);
+  floyd_warshall_all_pairs_shortest_paths(graph, distance_matrix,
+                                          boost::weight_map(weight_map));
+
+  // Get set of lines.
+  std::set<unsigned long> lines;
+  std::bitset<MAX_N> line;
+  int num_universal = 0;
+  int num_universal_dist1 = 0;
+  int num_universal_dist2 = 0;
+  int num_line_pairs = 0;
+  for (int i = 0; i < num_vertices; ++i) {
+    for (int j = i + 1; j < num_vertices; ++j) {
+      GetLine(graph, dist, i, j, &line);
+      const unsigned long line_as_long = line.to_ulong();
+      const int d = dist[i][j];
+      if ((d >= FLAGS_nmin) && (d <= FLAGS_nmax)) {
+        ++num_line_pairs;
+        lines.insert(line_as_long);
+      }
+      if (line_as_long == universal_line) {
+        if ((d >= FLAGS_umin) && (d <= FLAGS_umax)) {
+          ++num_universal;
+          if (d == 1) {
+            ++num_universal_dist1;
+          } else if (d == 2) {
+            ++num_universal_dist2;
+          }
+        }
+      }
+    }
+  }
+
+  graph_info->num_vertices = num_vertices;
+  graph_info->num_lines = lines.size();
+  graph_info->num_universal = num_universal;
+  graph_info->num_universal_dist1 = num_universal_dist1;
+  graph_info->num_universal_dist2 = num_universal_dist2;
+  graph_info->num_line_pairs = num_line_pairs;
+}
+
 int main(int argc, char *argv[]) {
   ParseCommandLineFlags(argc, argv);
 
@@ -88,48 +149,13 @@ int main(int argc, char *argv[]) {
     ++num_graphs;
 
     Graph graph(optional_graph.get());
-    const int num_vertices = boost::num_vertices(graph);
-    if (num_vertices > MAX_N) {
-      Error("Graph too large");
-    }
-
-    // Perform Floyd-Warshall all-pairs shortest paths to determine pairwise
-    // distances.
-    DistanceMatrix distance_matrix(num_vertices);
-    DistanceMatrixMap dist(distance_matrix, graph);
-    WeightMap weight_map(1);
-    floyd_warshall_all_pairs_shortest_paths(graph, distance_matrix,
-                                            boost::weight_map(weight_map));
-
-    const unsigned long universal_line = (1L << num_vertices) - 1;
-
-    // Get set of lines.
-    std::set<unsigned long> lines;
-    std::bitset<MAX_N> line;
-    int num_universal = 0;
-    int num_line_pairs = 0;
-    for (int i = 0; i < num_vertices; ++i) {
-      for (int j = i + 1; j < num_vertices; ++j) {
-        GetLine(graph, dist, i, j, &line);
-        const unsigned long line_as_long = line.to_ulong();
-        const int d = dist[i][j];
-        if ((d >= FLAGS_nmin) && (d <= FLAGS_nmax)) {
-          ++num_line_pairs;
-          lines.insert(line_as_long);
-        }
-        if (line_as_long == universal_line) {
-          if ((d >= FLAGS_umin) && (d <= FLAGS_umax)) {
-            ++num_universal;
-          }
-        }
-      }
-    }
+    GraphInfo info;
+    AnalyzeGraph(graph, &info);
 
     // Determine whether to output this graph.
-    const int amrz_sum = lines.size() + num_universal;
-    const int amrz_gap = amrz_sum - num_vertices;
-    const bool skip = (FLAGS_u && num_universal > 0) ||
-                      (FLAGS_n && lines.size() >= num_vertices) ||
+    const int amrz_gap = info.num_lines + info.num_universal - info.num_vertices;
+    const bool skip = (FLAGS_u && info.num_universal > 0) ||
+                      (FLAGS_n && info.num_lines >= info.num_vertices) ||
                       (amrz_gap < FLAGS_zmin) ||
                       (amrz_gap > FLAGS_zmax);
 
@@ -137,15 +163,15 @@ int main(int argc, char *argv[]) {
       ++num_output_graphs;
       switch (FLAGS_o) {
       case 0: {
-        std::cerr << "Graph " << num_output_graphs << " has " << lines.size()
-                  << " lines (from " << num_line_pairs << " pairs) and " << num_universal
+        std::cerr << "Graph " << num_output_graphs << " has " << info.num_lines
+                  << " lines (from " << info.num_line_pairs << " pairs) and " << info.num_universal
                   << " universal lines (AMRZ gap " << amrz_gap << ")"
                   << std::endl;
         WriteGraph(graph);
         break;
       }
       case 1:
-        std::cout << lines.size() << "," << num_universal << "," << amrz_gap << std::endl;
+        std::cout << info.num_lines << "," << info.num_universal << "," << amrz_gap << std::endl;
       }
     }
   }
