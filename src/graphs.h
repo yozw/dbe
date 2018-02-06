@@ -1,3 +1,6 @@
+#ifndef __GRAPHS_H__
+#define __GRAPHS_H__
+
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/exterior_property.hpp>
 #include <boost/graph/floyd_warshall_shortest.hpp>
@@ -28,3 +31,8 @@ Graph SparseGraphToBgl(const sparsegraph &sg);
 
 /** Converts Boost graph library graph to sparsegraph. **/
 void BglToSparseGraph(const Graph &graph, sparsegraph &sg);
+
+/** Determines whether the given edge is a bridge. **/
+bool IsBridge(const Graph &graph, int u, int v);
+
+#endif

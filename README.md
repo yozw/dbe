@@ -56,7 +56,7 @@ nauty/geng -b -d2 11 | parallel --block 5K --pipe './add_vertex | nauty/shortg' 
 
 These pipelines do the following:
 
-* Generate a set of base graphs (all 2-connected bipartite of order 11, and all bipartite of order 11 with minimum degree, respectively).
+* Generate a set of base graphs (all 2-connected bipartite graphs of order 11, and all bipartite graphs of order 11 with minimum degree, respectively).
 * Partition that set, and for each partition do the following in parallel: take each graph and add a vertex in every possible way; then, remove isomorphic duplicates.
 * Take the output from the previous stage and remove isomorphic duplicates.
 * From the previous stage, find all graphs that do not have at least n (=12 in this case) distinct lines.

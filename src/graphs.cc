@@ -96,3 +96,17 @@ void BglToSparseGraph(const Graph &graph, sparsegraph &sg) {
   }
   assert(cum_degree == num_edges * 2);
 }
+
+/** Determines whether the given edge is a bridge. **/
+bool IsBridge(const Graph &graph, int u, int v) {
+  // Make a copy of the graph and remove edge (u, v).
+  Graph graph2(graph);
+  boost::remove_edge(u, v, graph2);
+  const int num_vertices = boost::num_vertices(graph2);
+  DistanceMatrix distance_matrix(num_vertices);
+  DistanceMatrixMap dist(distance_matrix, graph2);
+  WeightMap weight_map(1);
+  floyd_warshall_all_pairs_shortest_paths(graph2, distance_matrix,
+                                          boost::weight_map(weight_map));
+  return dist[u][v] > num_vertices;
+}
