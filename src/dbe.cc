@@ -9,6 +9,7 @@ Example usage:
 #include <algorithm>
 #include <chrono>
 #include <climits>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -47,19 +48,17 @@ void ParseCommandLineFlags(int argc, char *argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 }
 
-std::string Potential(const GraphInfo &info, int constant_term) {
-  std::stringstream ss;
+std::string Potential(const GraphInfo &info) {
+  std::vector<int> values = {info.num_lines_dist1,     info.num_lines_dist2,
+                             info.num_universal,       info.num_universal_dist1,
+                             info.num_universal_dist2, info.num_bridges};
 
-  ss << (constant_term + info.num_lines);
-  ss << " + " << info.num_universal_dist1 << "*x[1]";
-  ss << " + " << info.num_universal_dist2 << "*x[2]";
-  ss << " + " << indicator(info.num_universal_dist1) << "*x[3]";
-  ss << " + " << indicator(info.num_universal_dist2) << "*x[4]";
-  ss << " + " << sqr(info.num_universal_dist1) << "*x[5]";
-  ss << " + " << sqr(info.num_universal_dist2) << "*x[6]";
-  ss << " + " << info.num_universal << "*x[7]";
-  ss << " + " << sqr(info.num_universal) << "*x[8]";
-  ss << " + " << info.num_bridges << "*x[9]";
+  std::stringstream ss;
+  ss << std::setw(2) << info.num_lines;
+  char variable = 'a';
+  for (int value : values) {
+    ss << " + " << std::setw(2) << value << "*" << ++variable;
+  }
   return ss.str();
 }
 
@@ -74,6 +73,7 @@ int main(int argc, char *argv[]) {
   options.umin = FLAGS_umin;
   options.umax = FLAGS_umax;
   options.count_bridges = (FLAGS_o == 2);
+  options.count_lines_by_distance = (FLAGS_o == 2);
 
   auto begin_time = Clock::now();
   int num_graphs = 0;
@@ -115,8 +115,8 @@ int main(int argc, char *argv[]) {
         boost::remove_vertex(i, subGraph);
         GraphInfo subGraphInfo;
         if (AnalyzeGraph(subGraph, options, &subGraphInfo)) {
-          std::cout << Potential(info, 0)
-                    << " >= " << Potential(subGraphInfo, 1) << std::endl;
+          std::cout << Potential(info) << " >= 1 + " << Potential(subGraphInfo)
+                    << std::endl;
         }
       }
     }

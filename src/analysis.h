@@ -7,6 +7,7 @@ const int MAX_N = 31;
 
 struct AnalysisOptions {
   bool count_bridges = false;
+  bool count_lines_by_distance = false;
   int nmin;
   int nmax;
   int umin;
@@ -15,6 +16,8 @@ struct AnalysisOptions {
 
 struct GraphInfo {
   int num_lines = 0;
+  int num_lines_dist1 = 0;
+  int num_lines_dist2 = 0;
   int num_universal = 0;
   int num_universal_dist1 = 0;
   int num_universal_dist2 = 0;

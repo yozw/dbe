@@ -48,6 +48,8 @@ bool AnalyzeGraph(const Graph &graph, const AnalysisOptions &options,
 
   // Get set of lines.
   std::set<unsigned long> lines;
+  std::set<unsigned long> lines_dist1;
+  std::set<unsigned long> lines_dist2;
   std::bitset<MAX_N> line;
   int num_universal = 0;
   int num_universal_dist1 = 0;
@@ -62,16 +64,30 @@ bool AnalyzeGraph(const Graph &graph, const AnalysisOptions &options,
       if (d > MAX_N) {
         return false; // The graph is disconnected.
       }
-      if (options.count_bridges && (d == 1) && IsBridge(graph, i, j)) {
-        ++num_bridges;
-      }
+      // If nmin <= d <= nmax, count this line.
       if ((d >= options.nmin) && (d <= options.nmax)) {
         ++num_line_pairs;
         lines.insert(line_as_long);
       }
+      // If counting lines by distance is requested, do so here.
+      if (options.count_lines_by_distance) {
+        if (d == 1) {
+          lines_dist1.insert(line_as_long);
+        } else if (d == 2) {
+          lines_dist2.insert(line_as_long);
+        }
+      }
+      // If counting bridges is requested, do so.
+      if (options.count_bridges && (d == 1) && IsBridge(graph, i, j)) {
+        ++num_bridges;
+      }
+      // If this line is the universal line, do additional counting.
       if (line_as_long == universal_line) {
+        // If umin <= d <= umax, count this pair as generating the universal
+        // line.
         if ((d >= options.umin) && (d <= options.umax)) {
           ++num_universal;
+          // Count pairs generating the universal line by distance.
           if (d == 1) {
             ++num_universal_dist1;
           } else if (d == 2) {
@@ -84,6 +100,8 @@ bool AnalyzeGraph(const Graph &graph, const AnalysisOptions &options,
 
   info->num_vertices = num_vertices;
   info->num_lines = lines.size();
+  info->num_lines_dist1 = lines_dist1.size();
+  info->num_lines_dist2 = lines_dist2.size();
   info->num_universal = num_universal;
   info->num_universal_dist1 = num_universal_dist1;
   info->num_universal_dist2 = num_universal_dist2;
