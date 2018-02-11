@@ -22,6 +22,8 @@ Example usage:
 #include "common.h"
 #include "graphs.h"
 
+DEFINE_bool(v, false, "Verbose analysis");
+DEFINE_bool(p, true, "Include universal line in line counts");
 DEFINE_bool(n, false, "Do not output graphs with |V(G)| lines");
 DEFINE_int32(nmin, 0,
              "Only count lines induced by vertices at at least this distance");
@@ -48,16 +50,16 @@ void ParseCommandLineFlags(int argc, char *argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 }
 
-std::string Potential(const GraphInfo &info) {
-  std::vector<int> values = {info.num_lines_dist1,     info.num_lines_dist2,
-                             info.num_universal,       info.num_universal_dist1,
-                             info.num_universal_dist2, info.num_bridges};
+std::string Values(const GraphInfo &info) {
+  std::vector<int> values = {info.num_lines,           info.num_lines_dist1,
+                             info.num_lines_dist2,     info.num_universal,
+                             info.num_universal_dist1, info.num_universal_dist2,
+                             info.num_bridges};
 
   std::stringstream ss;
-  ss << std::setw(2) << info.num_lines;
-  char variable = 'a';
+  ss << std::setw(2) << info.num_vertices;
   for (int value : values) {
-    ss << " + " << std::setw(2) << value << "*" << ++variable;
+    ss << "," << std::setw(2) << value;
   }
   return ss.str();
 }
@@ -74,6 +76,8 @@ int main(int argc, char *argv[]) {
   options.umax = FLAGS_umax;
   options.count_bridges = (FLAGS_o == 2);
   options.count_lines_by_distance = (FLAGS_o == 2);
+  options.include_universal_in_lines = FLAGS_p;
+  options.verbose = FLAGS_v;
 
   auto begin_time = Clock::now();
   int num_graphs = 0;
@@ -109,14 +113,14 @@ int main(int argc, char *argv[]) {
       std::cout << info.num_lines << "," << info.num_universal << ","
                 << info.amrz_gap << std::endl;
     } else if (FLAGS_o == 2) {
+      WriteGraph(graph);
       for (int i = 0; i < info.num_vertices; ++i) {
         Graph subGraph(graph);
         boost::clear_vertex(i, subGraph);
         boost::remove_vertex(i, subGraph);
         GraphInfo subGraphInfo;
         if (AnalyzeGraph(subGraph, options, &subGraphInfo)) {
-          std::cout << Potential(info) << " >= 1 + " << Potential(subGraphInfo)
-                    << std::endl;
+          std::cout << Values(info) << ";" << Values(subGraphInfo) << std::endl;
         }
       }
     }

@@ -6,8 +6,10 @@
 const int MAX_N = 31;
 
 struct AnalysisOptions {
+  bool verbose = false;
   bool count_bridges = false;
   bool count_lines_by_distance = false;
+  bool include_universal_in_lines = true;
   int nmin;
   int nmax;
   int umin;

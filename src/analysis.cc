@@ -1,4 +1,6 @@
 
+#include <iostream>
+
 #include "analysis.h"
 #include "common.h"
 #include "graphs.h"
@@ -64,17 +66,32 @@ bool AnalyzeGraph(const Graph &graph, const AnalysisOptions &options,
       if (d > MAX_N) {
         return false; // The graph is disconnected.
       }
-      // If nmin <= d <= nmax, count this line.
-      if ((d >= options.nmin) && (d <= options.nmax)) {
-        ++num_line_pairs;
-        lines.insert(line_as_long);
+      if (options.verbose) {
+        std::cerr << "d(" << i << "," << j << ") = " << d << "; l(" << i << ","
+                  << j << ") = {";
+        for (int k = 0; k < num_vertices; ++k) {
+          if (line.test(k)) {
+            std::cerr << k << ",";
+          }
+        }
+        std::cerr << "}" << std::endl;
       }
-      // If counting lines by distance is requested, do so here.
-      if (options.count_lines_by_distance) {
-        if (d == 1) {
-          lines_dist1.insert(line_as_long);
-        } else if (d == 2) {
-          lines_dist2.insert(line_as_long);
+      // Count this line only if we want to include the universal line in the
+      // lines or this line is not universal in the first place.
+      if (options.include_universal_in_lines ||
+          (line_as_long != universal_line)) {
+        // If nmin <= d <= nmax, count this line.
+        if ((d >= options.nmin) && (d <= options.nmax)) {
+          ++num_line_pairs;
+          lines.insert(line_as_long);
+        }
+        // If counting lines by distance is requested, do so here.
+        if (options.count_lines_by_distance) {
+          if (d == 1) {
+            lines_dist1.insert(line_as_long);
+          } else if (d == 2) {
+            lines_dist2.insert(line_as_long);
+          }
         }
       }
       // If counting bridges is requested, do so.
