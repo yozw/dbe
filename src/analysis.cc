@@ -1,4 +1,3 @@
-
 #include <iostream>
 
 #include "analysis.h"
@@ -52,7 +51,7 @@ bool AnalyzeGraph(const Graph &graph, const AnalysisOptions &options,
   std::set<unsigned long> lines;
   std::set<unsigned long> lines_dist1;
   std::set<unsigned long> lines_dist2;
-  std::bitset<MAX_N> line;
+  std::bitset<MAX_N> line_bitset;
   int num_universal = 0;
   int num_universal_dist1 = 0;
   int num_universal_dist2 = 0;
@@ -60,8 +59,8 @@ bool AnalyzeGraph(const Graph &graph, const AnalysisOptions &options,
   int num_bridges = 0;
   for (int i = 0; i < num_vertices; ++i) {
     for (int j = i + 1; j < num_vertices; ++j) {
-      GetLine(graph, dist, i, j, &line);
-      const unsigned long line_as_long = line.to_ulong();
+      GetLine(graph, dist, i, j, &line_bitset);
+      const unsigned long line = line_bitset.to_ulong();
       const int d = dist[i][j];
       if (d > MAX_N) {
         return false; // The graph is disconnected.
@@ -70,7 +69,7 @@ bool AnalyzeGraph(const Graph &graph, const AnalysisOptions &options,
         std::cerr << "d(" << i << "," << j << ") = " << d << "; l(" << i << ","
                   << j << ") = {";
         for (int k = 0; k < num_vertices; ++k) {
-          if (line.test(k)) {
+          if (line_bitset.test(k)) {
             std::cerr << k << ",";
           }
         }
@@ -78,19 +77,18 @@ bool AnalyzeGraph(const Graph &graph, const AnalysisOptions &options,
       }
       // Count this line only if we want to include the universal line in the
       // lines or this line is not universal in the first place.
-      if (options.include_universal_in_lines ||
-          (line_as_long != universal_line)) {
+      if (options.include_universal_in_lines || (line != universal_line)) {
         // If nmin <= d <= nmax, count this line.
         if ((d >= options.nmin) && (d <= options.nmax)) {
           ++num_line_pairs;
-          lines.insert(line_as_long);
+          lines.insert(line);
         }
         // If counting lines by distance is requested, do so here.
         if (options.count_lines_by_distance) {
           if (d == 1) {
-            lines_dist1.insert(line_as_long);
+            lines_dist1.insert(line);
           } else if (d == 2) {
-            lines_dist2.insert(line_as_long);
+            lines_dist2.insert(line);
           }
         }
       }
@@ -99,7 +97,7 @@ bool AnalyzeGraph(const Graph &graph, const AnalysisOptions &options,
         ++num_bridges;
       }
       // If this line is the universal line, do additional counting.
-      if (line_as_long == universal_line) {
+      if (line == universal_line) {
         // If umin <= d <= umax, count this pair as generating the universal
         // line.
         if ((d >= options.umin) && (d <= options.umax)) {
