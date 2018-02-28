@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 
 #include "common.h"
@@ -109,4 +110,15 @@ bool IsBridge(const Graph &graph, int u, int v) {
   floyd_warshall_all_pairs_shortest_paths(graph2, distance_matrix,
                                           boost::weight_map(weight_map));
   return dist[u][v] > num_vertices;
+}
+
+/** Calculated the maximum degree of a graph. **/
+int MaxDegree(const Graph &graph) {
+  const int num_vertices = boost::num_vertices(graph);
+  int max_degree = 0;
+  for (int i = 0; i < num_vertices; ++i) {
+    max_degree =
+        std::max(max_degree, static_cast<int>(boost::out_degree(i, graph)));
+  }
+  return max_degree;
 }

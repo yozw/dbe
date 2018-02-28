@@ -78,8 +78,8 @@ bool AnalyzeGraph(const Graph &graph, const AnalysisOptions &options,
       // Count this line only if we want to include the universal line in the
       // lines or this line is not universal in the first place.
       if (options.include_universal_in_lines || (line != universal_line)) {
-        // If nmin <= d <= nmax, count this line.
-        if ((d >= options.nmin) && (d <= options.nmax)) {
+        // If dmin <= d <= dmax, count this line.
+        if ((d >= options.dmin) && (d <= options.dmax)) {
           ++num_line_pairs;
           lines.insert(line);
         }
@@ -100,7 +100,7 @@ bool AnalyzeGraph(const Graph &graph, const AnalysisOptions &options,
       if (line == universal_line) {
         // If umin <= d <= umax, count this pair as generating the universal
         // line.
-        if ((d >= options.umin) && (d <= options.umax)) {
+        if ((d >= options.dumin) && (d <= options.dumax)) {
           ++num_universal;
           // Count pairs generating the universal line by distance.
           if (d == 1) {

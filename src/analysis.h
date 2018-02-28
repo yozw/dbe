@@ -10,10 +10,10 @@ struct AnalysisOptions {
   bool count_bridges = false;
   bool count_lines_by_distance = false;
   bool include_universal_in_lines = true;
-  int nmin;
-  int nmax;
-  int umin;
-  int umax;
+  int dmin;
+  int dmax;
+  int dumin;
+  int dumax;
 };
 
 struct GraphInfo {

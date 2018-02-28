@@ -35,4 +35,7 @@ void BglToSparseGraph(const Graph &graph, sparsegraph &sg);
 /** Determines whether the given edge is a bridge. **/
 bool IsBridge(const Graph &graph, int u, int v);
 
+/** Calculated the maximum degree of a graph. **/
+int MaxDegree(const Graph &graph);
+
 #endif
