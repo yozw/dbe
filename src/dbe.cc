@@ -95,6 +95,12 @@ int main(int argc, char *argv[]) {
     GraphInfo info;
     AnalyzeGraph(graph, options, &info);
 
+    if (num_graphs % 1000000 == 0) {
+      std::cerr << ">Z (in-progress) dbe analyzed " << num_graphs << " graphs in "
+            << GetMillisecondsSince(begin_time) / 1000.0 << " seconds "
+            << std::endl;
+    }
+
     // Determine whether to output this graph.
     if (FLAGS_u && info.num_universal > 0) {
       // Skip because this graph has a universal line.
