@@ -18,8 +18,11 @@ template <class T> boost::optional<T> CalcMin() {
   T min = INT_MAX;
   bool has_value = false;
   while (std::cin >> n) {
-    has_value = true;
-    min = std::min(min, n);
+    if (n < min) {
+      has_value = true;
+      min = n;
+      std::cerr << "New minimum: " << min << std::endl;
+    }
   }
   return has_value ? boost::optional<T>{min} : boost::none;
 }
@@ -29,8 +32,11 @@ template <class T> boost::optional<T> CalcMax() {
   T max = INT_MIN;
   bool has_value = false;
   while (std::cin >> n) {
-    has_value = true;
-    max = std::max(max, n);
+    if (n > max) {
+      has_value = true;
+      max = n;
+      std::cerr << "New maximum: " << max << std::endl;
+    }
   }
   return has_value ? boost::optional<T>{max} : boost::none;
 }
