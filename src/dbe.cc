@@ -82,6 +82,7 @@ int main(int argc, char *argv[]) {
   options.count_bridges = (FLAGS_o == 2);
   options.count_lines_by_distance = (FLAGS_o == 2);
   options.include_universal_in_lines = FLAGS_p;
+  options.skip_graphs_with_universal_line = FLAGS_u;
   options.verbose = FLAGS_v;
 
   auto begin_time = Clock::now();
@@ -93,16 +94,18 @@ int main(int argc, char *argv[]) {
 
     Graph graph(optional_graph.get());
     GraphInfo info;
-    AnalyzeGraph(graph, options, &info);
+    bool valid = AnalyzeGraph(graph, options, &info);
 
     if (num_graphs % 1000000 == 0) {
-      std::cerr << ">Z (in-progress) dbe analyzed " << num_graphs << " graphs in "
-            << GetMillisecondsSince(begin_time) / 1000.0 << " seconds "
-            << std::endl;
+      std::cerr << ">Z (in-progress) dbe analyzed " << num_graphs
+                << " graphs in " << GetMillisecondsSince(begin_time) / 1000.0
+                << " seconds " << std::endl;
     }
 
     // Determine whether to output this graph.
-    if (FLAGS_u && info.num_universal > 0) {
+    if (!valid) {
+      continue;
+    } else if (FLAGS_u && info.num_universal > 0) {
       // Skip because this graph has a universal line.
       continue;
     } else if (FLAGS_n && info.num_lines >= info.num_vertices) {

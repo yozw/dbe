@@ -1,15 +1,24 @@
 #ifndef __GRAPHS_H__
 #define __GRAPHS_H__
 
+// Use adjacency list if you want to use graph modification operations!
+// Adjacency matrix is a lot faster however.
+// #define USE_ADJACENCY_LIST
+
+#ifdef USE_ADJACENCY_LIST
 #include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/exterior_property.hpp>
-#include <boost/graph/floyd_warshall_shortest.hpp>
-
-#include <gtools.h>
-
-// create a typedef for the Graph type
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS>
     Graph;
+#else
+#include <boost/graph/adjacency_matrix.hpp>
+typedef boost::adjacency_matrix<boost::undirectedS> Graph;
+#endif
+
+#include <boost/graph/exterior_property.hpp>
+#include <boost/graph/floyd_warshall_shortest.hpp>
+#include <boost/optional.hpp>
+#include <gtools.h>
+
 typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
 typedef boost::graph_traits<Graph>::edge_descriptor Edge;
 typedef boost::exterior_vertex_property<Graph, int> DistanceProperty;

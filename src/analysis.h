@@ -3,13 +3,14 @@
 
 #include "graphs.h"
 
-const int MAX_N = 31;
+const int MAX_N = 14;
 
 struct AnalysisOptions {
   bool verbose = false;
   bool count_bridges = false;
   bool count_lines_by_distance = false;
   bool include_universal_in_lines = true;
+  bool skip_graphs_with_universal_line = false;
   int dmin;
   int dmax;
   int dumin;

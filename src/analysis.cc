@@ -4,31 +4,35 @@
 #include "common.h"
 #include "graphs.h"
 
-void GetLine(const Graph &graph, const DistanceMatrixMap &dist, const int i,
-             const int j, std::bitset<MAX_N> *line) {
+unsigned long GetLine(const Graph &graph, const DistanceMatrixMap &dist,
+                      const int i, const int j) {
   const int num_vertices = boost::num_vertices(graph);
   assert(i >= 0);
   assert(j >= 0);
   assert(i < num_vertices);
   assert(j < num_vertices);
 
-  line->reset();
-  line->set(i);
-  line->set(j);
+  unsigned long line = 0;
+  unsigned long mask = 1;
 
-  const int dij = dist[i][j];
-  for (int k = 0; k < num_vertices; ++k) {
+  auto dist_i = dist[i];
+  auto dist_j = dist[j];
+
+  const int dij = dist_i[j];
+  for (int k = 0; k < num_vertices; ++k, mask <<= 1) {
     if ((k == i) || (k == j)) {
+      line |= mask;
       continue;
     }
-    const int dik = dist[i][k];
-    const int djk = dist[j][k];
+    const int dik = dist_i[k];
+    const int djk = dist_j[k];
 
     // i-j-k or j-i-k or i-k-j
     if ((dij + djk == dik) || (dij + dik == djk) || (dik + djk == dij)) {
-      line->set(k);
+      line |= mask;
     }
   }
+  return line;
 }
 
 bool AnalyzeGraph(const Graph &graph, const AnalysisOptions &options,
@@ -48,10 +52,9 @@ bool AnalyzeGraph(const Graph &graph, const AnalysisOptions &options,
                                           boost::weight_map(weight_map));
 
   // Get set of lines.
-  std::set<unsigned long> lines;
-  std::set<unsigned long> lines_dist1;
-  std::set<unsigned long> lines_dist2;
-  std::bitset<MAX_N> line_bitset;
+  std::bitset<(1 << MAX_N)> lines;
+  std::bitset<(1 << MAX_N)> lines_dist1;
+  std::bitset<(1 << MAX_N)> lines_dist2;
   int num_universal = 0;
   int num_universal_dist1 = 0;
   int num_universal_dist2 = 0;
@@ -59,13 +62,13 @@ bool AnalyzeGraph(const Graph &graph, const AnalysisOptions &options,
   int num_bridges = 0;
   for (int i = 0; i < num_vertices; ++i) {
     for (int j = i + 1; j < num_vertices; ++j) {
-      GetLine(graph, dist, i, j, &line_bitset);
-      const unsigned long line = line_bitset.to_ulong();
       const int d = dist[i][j];
       if (d > MAX_N) {
         return false; // The graph is disconnected.
       }
+      const unsigned long line = GetLine(graph, dist, i, j);
       if (options.verbose) {
+        std::bitset<MAX_N> line_bitset(line);
         std::cerr << "d(" << i << "," << j << ") = " << d << "; l(" << i << ","
                   << j << ") = {";
         for (int k = 0; k < num_vertices; ++k) {
@@ -81,14 +84,14 @@ bool AnalyzeGraph(const Graph &graph, const AnalysisOptions &options,
         // If dmin <= d <= dmax, count this line.
         if ((d >= options.dmin) && (d <= options.dmax)) {
           ++num_line_pairs;
-          lines.insert(line);
+          lines.set(line);
         }
         // If counting lines by distance is requested, do so here.
         if (options.count_lines_by_distance) {
           if (d == 1) {
-            lines_dist1.insert(line);
+            lines_dist1.set(line);
           } else if (d == 2) {
-            lines_dist2.insert(line);
+            lines_dist2.set(line);
           }
         }
       }
@@ -98,6 +101,9 @@ bool AnalyzeGraph(const Graph &graph, const AnalysisOptions &options,
       }
       // If this line is the universal line, do additional counting.
       if (line == universal_line) {
+        if (options.skip_graphs_with_universal_line) {
+          return false;
+        }
         // If umin <= d <= umax, count this pair as generating the universal
         // line.
         if ((d >= options.dumin) && (d <= options.dumax)) {
@@ -114,9 +120,9 @@ bool AnalyzeGraph(const Graph &graph, const AnalysisOptions &options,
   }
 
   info->num_vertices = num_vertices;
-  info->num_lines = lines.size();
-  info->num_lines_dist1 = lines_dist1.size();
-  info->num_lines_dist2 = lines_dist2.size();
+  info->num_lines = lines.count();
+  info->num_lines_dist1 = lines_dist1.count();
+  info->num_lines_dist2 = lines_dist2.count();
   info->num_universal = num_universal;
   info->num_universal_dist1 = num_universal_dist1;
   info->num_universal_dist2 = num_universal_dist2;
