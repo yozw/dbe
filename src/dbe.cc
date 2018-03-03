@@ -86,8 +86,8 @@ int main(int argc, char *argv[]) {
   options.verbose = FLAGS_v;
 
   auto begin_time = Clock::now();
-  int num_graphs = 0;
-  int num_output_graphs = 0;
+  unsigned long long num_graphs = 0;
+  unsigned long long num_output_graphs = 0;
   boost::optional<Graph> optional_graph;
   while ((optional_graph = ReadGraph())) {
     ++num_graphs;
@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
     GraphInfo info;
     bool valid = AnalyzeGraph(graph, options, &info);
 
-    if (num_graphs % 1000000 == 0) {
+    if (num_graphs % 10000000 == 0) {
       std::cerr << ">Z (in-progress) dbe analyzed " << num_graphs
                 << " graphs in " << GetMillisecondsSince(begin_time) / 1000.0
                 << " seconds " << std::endl;
