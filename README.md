@@ -2,18 +2,8 @@
 
 ## Installation and compilation
 
-```
-git clone https://github.com/yozw/dbe.git
-cd dbe
-wget http://users.cecs.anu.edu.au/~bdm/nauty/nauty26r11.tar.gz
-tar xvzf nauty26r11.tar.gz
-mv nauty26r11 nauty
-cd nauty
-./configure
-make
-cd ..
-./make
-```
+* Install Bazel.
+* Run `bazel build -c opt ...`.
 
 ## Usage examples
 

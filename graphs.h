@@ -17,7 +17,7 @@ typedef boost::adjacency_matrix<boost::undirectedS> Graph;
 #include <boost/graph/exterior_property.hpp>
 #include <boost/graph/floyd_warshall_shortest.hpp>
 #include <boost/optional.hpp>
-#include <gtools.h>
+#include "gtools.h"
 
 typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
 typedef boost::graph_traits<Graph>::edge_descriptor Edge;

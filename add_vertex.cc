@@ -111,7 +111,6 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  auto end_time = Clock::now();
   std::cerr << ">Z add_vertex generated " << num_graphs << " graphs in "
             << GetMillisecondsSince(begin_time) / 1000.0 << " seconds"
             << std::endl;
