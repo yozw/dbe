@@ -1,37 +1,37 @@
 cc_binary(
   name='dbe',
-  srcs=['dbe.cc'],
+  srcs=['src/dbe.cc'],
   deps=[':analysis', ':graphs', '//external:gflags']
 )
 
 cc_binary(
   name='add_vertex',
-  srcs=['add_vertex.cc'],
+  srcs=['src/add_vertex.cc'],
   deps=[':graphs', '//external:gflags']
 )
 
 cc_binary(
   name='calc',
-  srcs=['calc.cc'],
+  srcs=['src/calc.cc'],
 )
 
 cc_library(
   name='analysis',
-  srcs=['analysis.cc'],
-  hdrs=['analysis.h'],
+  srcs=['src/analysis.cc'],
+  hdrs=['src/analysis.h'],
   deps=[':graphs']
 )
 
 cc_library(
   name='graphs',
-  srcs=['graphs.cc'],
-  hdrs=['graphs.h'],
+  srcs=['src/graphs.cc'],
+  hdrs=['src/graphs.h'],
   deps=[':common', '@nauty//:headers'],
   copts=['-Inauty']
 )
 
 cc_library(
   name='common',
-  hdrs=['common.h']
+  hdrs=['src/common.h']
 )
 

@@ -1,5 +1,0 @@
-#!/bin/bash
-INCLUDES="nauty"
-g++ -std=c++11 -Inauty -O3 src/dbe.cc src/graphs.cc src/analysis.cc nauty/gtools.c -lgflags -o dbe
-g++ -std=c++11 -Inauty -O3 src/add_vertex.cc src/graphs.cc nauty/gtools.c -lgflags -o add_vertex
-g++ -std=c++11 -O3 src/calc.cc -o calc

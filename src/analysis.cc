@@ -1,9 +1,9 @@
 #include <bitset>
 #include <iostream>
 
-#include "analysis.h"
-#include "common.h"
-#include "graphs.h"
+#include "src/analysis.h"
+#include "src/common.h"
+#include "src/graphs.h"
 
 unsigned long GetLine(const Graph &graph, const DistanceMatrixMap &dist,
                       const int i, const int j) {

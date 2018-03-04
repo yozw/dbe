@@ -18,9 +18,9 @@ Example usage:
 
 #include <gflags/gflags.h>
 
-#include "analysis.h"
-#include "common.h"
-#include "graphs.h"
+#include "src/analysis.h"
+#include "src/common.h"
+#include "src/graphs.h"
 
 DEFINE_bool(v, false, "Verbose analysis");
 DEFINE_bool(p, true, "Include universal line in line counts");

@@ -3,6 +3,7 @@
 ## Installation and compilation
 
 * Install Bazel.
+* Clone this repo: `git clone https://github.com/yozw/dbe.git`.
 * Run `bazel build -c opt ...`.
 
 ## Usage examples

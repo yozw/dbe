@@ -1,7 +1,7 @@
 #ifndef __ANALYSIS_H__
 #define __ANALYSIS_H__
 
-#include "graphs.h"
+#include "src/graphs.h"
 
 const int MAX_N = 14;
 
