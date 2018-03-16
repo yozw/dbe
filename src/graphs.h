@@ -32,6 +32,9 @@ boost::optional<std::string> ReadLine();
 /** Reads a sparse6-encoded graph from stdin. **/
 boost::optional<Graph> ReadGraph();
 
+/** Converts a sparse6-encoded graph to a Graph object. **/
+Graph StringToGraph(std::string& string);
+
 /** Writes a graph in sparse6 encoding to stdout. **/
 void WriteGraph(const Graph &graph);
 

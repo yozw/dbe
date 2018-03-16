@@ -11,6 +11,12 @@ cc_binary(
   copts=['-DUSE_ADJACENCY_LIST']
 )
 
+py_test(
+  name='add_vertex_test',
+  srcs=['src/add_vertex_test.py'],
+  data=[':add_vertex']
+)
+
 cc_binary(
   name='calc',
   srcs=['src/calc.cc'],

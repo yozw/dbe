@@ -19,15 +19,19 @@ boost::optional<std::string> ReadLine() {
 /** Reads a sparse6-encoded graph from stdin. **/
 boost::optional<Graph> ReadGraph() {
   boost::optional<std::string> line = ReadLine();
-  if (!line) {
+  if (line) {
+    return StringToGraph(line.get());
+  } else {
     return boost::none;
   }
+}
 
-  // Parse sparse graph encoded in line.
+/** Converts a sparse6-encoded graph to a Graph object. **/
+Graph StringToGraph(std::string& str) {
   sparsegraph sg;
   SG_INIT(sg);
   int nloops;
-  char *repr = const_cast<char *>(line.get().c_str());
+  char *repr = const_cast<char *>(str.c_str());
   stringtosparsegraph(repr, &sg, &nloops);
   if (nloops != 0) {
     Error("Loops are not supported");

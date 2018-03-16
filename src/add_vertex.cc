@@ -31,9 +31,9 @@ DEFINE_int32(min_degree, 2, "Minimum degree if resulting vertex");
 DEFINE_bool(q, false, "Quiet mode");
 
 const unsigned int ALL = 1;
-const unsigned int ADJACENT_CLONE = 2;
-const unsigned int NON_ADJACENT_CLONE = 3;
-const unsigned int CLONE = 4;
+const unsigned int CLONE = 2;
+const unsigned int ADJACENT_CLONE = 3;
+const unsigned int NON_ADJACENT_CLONE = 4;
 
 int num_graphs = 0;
 
