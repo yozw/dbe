@@ -23,6 +23,7 @@ Example usage:
 #include "src/graphs.h"
 
 DEFINE_bool(v, false, "Verbose analysis");
+DEFINE_bool(q, false, "Quiet mode");
 DEFINE_bool(p, true, "Include universal line in line counts");
 DEFINE_bool(n, false, "Do not output graphs with |V(G)| lines");
 DEFINE_int32(nmin, 0,
@@ -72,7 +73,9 @@ std::string Values(const GraphInfo &info) {
 int main(int argc, char *argv[]) {
   ParseCommandLineFlags(argc, argv);
 
-  std::cerr << ">A dbe" << std::endl;
+  if (!FLAGS_q) {
+    std::cerr << ">A dbe" << std::endl;
+  }
 
   AnalysisOptions options;
   options.dmin = FLAGS_dmin;
@@ -96,7 +99,7 @@ int main(int argc, char *argv[]) {
     GraphInfo info;
     bool valid = AnalyzeGraph(graph, options, &info);
 
-    if (num_graphs % 10000000 == 0) {
+    if ((!FLAGS_q) && (num_graphs % 10000000 == 0)) {
       std::cerr << ">Z (in-progress) dbe analyzed " << num_graphs
                 << " graphs in " << GetMillisecondsSince(begin_time) / 1000.0
                 << " seconds " << std::endl;
@@ -120,10 +123,12 @@ int main(int argc, char *argv[]) {
 
     ++num_output_graphs;
     if (FLAGS_o == 0) {
-      std::cerr << "Graph " << num_output_graphs << " has " << info.num_lines
-                << " lines (from " << info.num_line_pairs << " pairs) and "
-                << info.num_universal << " universal lines (AMRZ gap "
-                << info.amrz_gap << ")" << std::endl;
+      if (!FLAGS_q) {
+        std::cerr << "Graph " << num_output_graphs << " has " << info.num_lines
+                  << " lines (from " << info.num_line_pairs << " pairs) and "
+                  << info.num_universal << " universal lines (AMRZ gap "
+                  << info.amrz_gap << ")" << std::endl;
+      }
       WriteGraph(graph);
     } else if (FLAGS_o == 1) {
       std::cout << info.num_lines << "," << info.num_universal << ","
@@ -142,10 +147,11 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  std::cerr << ">Z dbe analyzed " << num_graphs << " graphs in "
-            << GetMillisecondsSince(begin_time) / 1000.0 << " seconds"
-            << std::endl;
-
+  if (!FLAGS_q) {
+    std::cerr << ">Z dbe analyzed " << num_graphs << " graphs in "
+              << GetMillisecondsSince(begin_time) / 1000.0 << " seconds"
+              << std::endl;
+  }
   gflags::ShutDownCommandLineFlags();
   return 0;
 }

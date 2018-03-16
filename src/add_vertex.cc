@@ -28,6 +28,7 @@ DEFINE_int32(t, 1,
              "2 for clone, 3 for adjacent clone, 4 for non-adjacent clone");
 
 DEFINE_int32(min_degree, 2, "Minimum degree if resulting vertex");
+DEFINE_bool(q, false, "Quiet mode");
 
 const unsigned int ALL = 1;
 const unsigned int ADJACENT_CLONE = 2;
@@ -98,7 +99,9 @@ int main(int argc, char *argv[]) {
   ParseCommandLineFlags(argc, argv);
 
   auto begin_time = Clock::now();
-  std::cerr << ">A add_vertex" << std::endl;
+  if (!FLAGS_q) {
+    std::cerr << ">A add_vertex" << std::endl;
+  }
 
   boost::optional<Graph> optional_graph;
   while ((optional_graph = ReadGraph())) {
@@ -116,8 +119,10 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  std::cerr << ">Z add_vertex generated " << num_graphs << " graphs in "
-            << GetMillisecondsSince(begin_time) / 1000.0 << " seconds"
-            << std::endl;
+  if (!FLAGS_q) {
+    std::cerr << ">Z add_vertex generated " << num_graphs << " graphs in "
+              << GetMillisecondsSince(begin_time) / 1000.0 << " seconds"
+              << std::endl;
+  }
   return 0;
 }
