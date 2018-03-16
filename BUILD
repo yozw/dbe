@@ -4,6 +4,12 @@ cc_binary(
   deps=[':analysis', ':graphs', '//external:gflags']
 )
 
+py_test(
+  name='dbe_test',
+  srcs=['src/dbe_test.py'],
+  data=[':dbe']
+)
+
 cc_binary(
   name='add_vertex',
   srcs=['src/add_vertex.cc'],
