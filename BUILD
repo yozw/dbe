@@ -26,7 +26,7 @@ cc_library(
   name='graphs',
   srcs=['src/graphs.cc'],
   hdrs=['src/graphs.h'],
-  deps=[':common', '@nauty//:headers'],
+  deps=[':common', '@nauty//:headers', '@nauty//:gtools'],
   copts=['-Inauty']
 )
 

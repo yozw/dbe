@@ -7,3 +7,10 @@ cc_library(
   hdrs=glob(['*.h']),
   copts = ['-Inauty']
 )
+
+cc_library(
+  name='gtools',
+  srcs=['gtools.c'],
+  deps=[':headers'],
+  copts=['-Wsometimes-uninitialized']
+)
