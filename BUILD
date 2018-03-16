@@ -7,7 +7,8 @@ cc_binary(
 cc_binary(
   name='add_vertex',
   srcs=['src/add_vertex.cc'],
-  deps=[':graphs', '//external:gflags']
+  deps=[':graphs_adj', '//external:gflags'],
+  copts=['-DUSE_ADJACENCY_LIST']
 )
 
 cc_binary(
@@ -28,6 +29,14 @@ cc_library(
   hdrs=['src/graphs.h'],
   deps=[':common', '@nauty//:headers', '@nauty//:gtools'],
   copts=['-Inauty']
+)
+
+cc_library(
+  name='graphs_adj',
+  srcs=['src/graphs.cc'],
+  hdrs=['src/graphs.h'],
+  deps=[':common', '@nauty//:headers', '@nauty//:gtools'],
+  copts=['-Inauty', '-DUSE_ADJACENCY_LIST']
 )
 
 cc_library(

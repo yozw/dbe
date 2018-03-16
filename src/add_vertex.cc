@@ -14,6 +14,11 @@ adding a vertex to each of them, and finally removes all isomorphic duplicates.
 #include <vector>
 
 #include <gflags/gflags.h>
+#include <boost/graph/copy.hpp>
+
+#ifndef USE_ADJACENCY_LIST
+#error Please compile with -DUSE_ADJACENCY_LIST.
+#endif
 
 #include "common.h"
 #include "graphs.h"
