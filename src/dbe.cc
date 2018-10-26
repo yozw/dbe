@@ -56,11 +56,11 @@ void ParseCommandLineFlags(int argc, char *argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 }
 
-std::string Values(const GraphInfo &info) {
+std::string Values(const MetricSpaceInfo &info, int num_bridges) {
   std::vector<int> values = {info.num_lines,           info.num_lines_dist1,
                              info.num_lines_dist2,     info.num_universal,
                              info.num_universal_dist1, info.num_universal_dist2,
-                             info.num_bridges};
+                             num_bridges};
 
   std::stringstream ss;
   ss << std::setw(2) << info.num_vertices;
@@ -96,8 +96,19 @@ int main(int argc, char *argv[]) {
     ++num_graphs;
 
     Graph graph(optional_graph.get());
-    GraphInfo info;
-    bool valid = AnalyzeGraph(graph, options, &info);
+
+    const int num_vertices = boost::num_vertices(graph);
+    DistanceMatrix distance_matrix(num_vertices);
+    GetDistanceMatrix(graph, &distance_matrix);
+
+    DistanceMatrixMap dist(distance_matrix, graph);
+    MetricSpaceInfo info;
+    bool valid = AnalyzeMetricSpace(num_vertices, dist, options, &info);
+
+    int num_bridges = -1;
+    if (options.count_bridges) {
+      num_bridges = CountBridges(graph);
+    }
 
     if ((!FLAGS_q) && (num_graphs % 10000000 == 0)) {
       std::cerr << ">Z (in-progress) dbe analyzed " << num_graphs
@@ -133,17 +144,6 @@ int main(int argc, char *argv[]) {
     } else if (FLAGS_o == 1) {
       std::cout << info.num_lines << "," << info.num_universal << ","
                 << info.amrz_gap << std::endl;
-    } else if (FLAGS_o == 2) {
-      WriteGraph(graph);
-      for (int i = 0; i < info.num_vertices; ++i) {
-        Graph subGraph(graph);
-        boost::clear_vertex(i, subGraph);
-        boost::remove_vertex(i, subGraph);
-        GraphInfo subGraphInfo;
-        if (AnalyzeGraph(subGraph, options, &subGraphInfo)) {
-          std::cout << Values(info) << ";" << Values(subGraphInfo) << std::endl;
-        }
-      }
     }
   }
 

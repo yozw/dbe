@@ -103,7 +103,13 @@ void BglToSparseGraph(const Graph &graph, sparsegraph &sg) {
 }
 
 /** Determines whether the given edge is a bridge. **/
-bool IsBridge(const Graph &graph, int u, int v) {
+bool IsBridge(const Graph &graph, const int u, const int v) {
+  std::pair<Edge, bool> p = boost::edge(u, v, graph);
+  if (!p.second) {
+    // (i, j) is not an edge.
+    return false;
+  }
+
   // Make a copy of the graph and remove edge (u, v).
   Graph graph2(graph);
   boost::remove_edge(u, v, graph2);
@@ -114,6 +120,20 @@ bool IsBridge(const Graph &graph, int u, int v) {
   floyd_warshall_all_pairs_shortest_paths(graph2, distance_matrix,
                                           boost::weight_map(weight_map));
   return dist[u][v] > num_vertices;
+}
+
+/** Counts the number of bridges in the given graph. **/
+int CountBridges(const Graph &graph) {
+  const int num_vertices = boost::num_vertices(graph);
+  int num_bridges = 0;
+  for (int i = 0; i < num_vertices; ++i) {
+    for (int j = i + 1; j < num_vertices; ++j) {
+      if (IsBridge(graph, i, j)) {
+        ++num_bridges;
+      }
+    }
+  }
+  return num_bridges;
 }
 
 /** Calculated the maximum degree of a graph. **/

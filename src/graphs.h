@@ -44,8 +44,11 @@ Graph SparseGraphToBgl(const sparsegraph &sg);
 /** Converts Boost graph library graph to sparsegraph. **/
 void BglToSparseGraph(const Graph &graph, sparsegraph &sg);
 
-/** Determines whether the given edge is a bridge. **/
-bool IsBridge(const Graph &graph, int u, int v);
+/** Determines whether the given edge/non-edge is a bridge. **/
+bool IsBridge(const Graph &graph, const int u, const int v);
+
+/** Counts the number of bridges in the given graph. **/
+int CountBridges(const Graph &graph);
 
 /** Calculated the maximum degree of a graph. **/
 int MaxDegree(const Graph &graph);
