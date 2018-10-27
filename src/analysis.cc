@@ -36,15 +36,6 @@ unsigned long GetLine(const int num_vertices,
   return line;
 }
 
-bool GetDistanceMatrix(const Graph &graph, DistanceMatrix* distance_matrix) {
-  // Perform Floyd-Warshall all-pairs shortest paths to determine pairwise
-  // distances.
-  WeightMap weight_map(1);
-  floyd_warshall_all_pairs_shortest_paths(graph, *distance_matrix,
-                                          boost::weight_map(weight_map));
-  return true;
-}
-
 bool AnalyzeMetricSpace(const int num_vertices, const DistanceMatrixMap& dist,
                         const AnalysisOptions &options, MetricSpaceInfo *info) {
   if (num_vertices > MAX_N) {
@@ -62,9 +53,6 @@ bool AnalyzeMetricSpace(const int num_vertices, const DistanceMatrixMap& dist,
   for (int i = 0; i < num_vertices; ++i) {
     for (int j = i + 1; j < num_vertices; ++j) {
       const int d = dist[i][j];
-      if (d > MAX_N) {
-        return false; // The graph is disconnected.
-      }
       const unsigned long line = GetLine(num_vertices, dist, i, j);
       if (options.verbose) {
         std::bitset<MAX_N> line_bitset(line);
@@ -96,7 +84,7 @@ bool AnalyzeMetricSpace(const int num_vertices, const DistanceMatrixMap& dist,
       }
       // If this line is the universal line, do additional counting.
       if (line == universal_line) {
-        if (options.skip_graphs_with_universal_line) {
+        if (options.skip_spaces_with_universal_line) {
           return false;
         }
         // If umin <= d <= umax, count this pair as generating the universal

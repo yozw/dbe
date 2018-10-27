@@ -10,7 +10,7 @@ struct AnalysisOptions {
   bool count_bridges = false;
   bool count_lines_by_distance = false;
   bool include_universal_in_lines = true;
-  bool skip_graphs_with_universal_line = false;
+  bool skip_spaces_with_universal_line = false;
   int dmin;
   int dmax;
   int dumin;
@@ -29,7 +29,6 @@ struct MetricSpaceInfo {
   int amrz_gap = 0;
 };
 
-bool GetDistanceMatrix(const Graph &graph, DistanceMatrix* distance_matrix);
 bool AnalyzeMetricSpace(const int num_vertices, const DistanceMatrixMap& dist,
                         const AnalysisOptions &options, MetricSpaceInfo *info);
 

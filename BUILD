@@ -4,10 +4,22 @@ cc_binary(
   deps=[':analysis', ':graphs', '//external:gflags']
 )
 
+cc_binary(
+  name='g2dist',
+  srcs=['src/g2dist.cc'],
+  deps=[':graphs', '//external:gflags']
+)
+
+cc_binary(
+  name='vc2dist',
+  srcs=['src/vc2dist.cc'],
+  deps=[':common'],
+)
+
 py_test(
   name='dbe_test',
   srcs=['src/dbe_test.py'],
-  data=[':dbe']
+  data=[':dbe', ':g2dist']
 )
 
 cc_binary(

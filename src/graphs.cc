@@ -146,3 +146,13 @@ int MaxDegree(const Graph &graph) {
   }
   return max_degree;
 }
+
+/** Gets the distance matrix of the given graph. **/
+bool GetDistanceMatrix(const Graph &graph, DistanceMatrix* distance_matrix) {
+  // Perform Floyd-Warshall all-pairs shortest paths to determine pairwise
+  // distances.
+  WeightMap weight_map(1);
+  floyd_warshall_all_pairs_shortest_paths(graph, *distance_matrix,
+                                          boost::weight_map(weight_map));
+  return true;
+}

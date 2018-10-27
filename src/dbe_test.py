@@ -12,11 +12,17 @@ def RunDbe(input, args=()):
   if isinstance(input, (tuple, list)):
     input = '\n'.join(input)
 
+  process = subprocess.Popen(['g2dist'],
+      stdin=subprocess.PIPE,
+      stderr=subprocess.PIPE,
+      stdout=subprocess.PIPE)
+  dists, stderr = process.communicate(input=input)
+
   process = subprocess.Popen(['dbe'] + list(args),
       stdin=subprocess.PIPE,
       stderr=subprocess.PIPE,
       stdout=subprocess.PIPE)
-  stdout, stderr = process.communicate(input=input)
+  stdout, stderr = process.communicate(input=dists)
   stdout = [line for line in stdout.split('\n') if line]
   stderr = [line for line in stderr.split('\n') if line]
   return stdout, stderr

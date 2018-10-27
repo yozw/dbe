@@ -53,4 +53,7 @@ int CountBridges(const Graph &graph);
 /** Calculated the maximum degree of a graph. **/
 int MaxDegree(const Graph &graph);
 
+/** Gets the distance matrix of the given graph. **/
+bool GetDistanceMatrix(const Graph &graph, DistanceMatrix* distance_matrix);
+
 #endif

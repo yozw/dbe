@@ -13,7 +13,7 @@
 Generate all bipartite graphs of order 5 that have no universal line:
 
 ```
-nauty/geng -b 5 | bazel-out/dbe -u | nauty/showg -A
+nauty/geng -b 5 | bazel-out/g2dist | bazel-out/dbe -u | nauty/showg -A
 ```
 
 Generate all biconnected bipartite graphs of order 5, add one vertex in any way, remove
@@ -21,29 +21,29 @@ isomorphic duplicates, and find all graphs among the resulting graphs that have 
 universal line:
 
 ```
-nauty/geng -b 6 | bazel-out/add_vertex | nauty/shortg | bazel-out/dbe -u | nauty/showg -A
+nauty/geng -b 6 | bazel-out/add_vertex | nauty/shortg | bazel-out/g2dist | bazel-out/dbe -u | nauty/showg -A
 ```
 
 There are 172 such graphs.
 To impose in addition that the starting bipartite graphs are biconnected:
 
 ```
-nauty/geng -b -C 6 | bazel-out/add_vertex | nauty/shortg | bazel-out/dbe -u | nauty/showg -A
+nauty/geng -b -C 6 | bazel-out/add_vertex | nauty/shortg | bazel-out/g2dist | bazel-out/dbe -u | nauty/showg -A
 ```
 
 There are 69 such graphs. To output graphs that do not have n distinct lines
 instead:
 
 ```
-nauty/geng -b -C 6 | bazel-out/add_vertex | nauty/shortg | bazel-out/dbe -n | nauty/showg -A
+nauty/geng -b -C 6 | bazel-out/add_vertex | nauty/shortg | bazel-out/g2dist | bazel-out/dbe -n | nauty/showg -A
 ```
 
 Parallellizing using GNU Parallel:
 
 ```
-nauty/geng -b -C 11 | parallel --block 10K --pipe 'bazel-out/add_vertex | nauty/shortg' | nauty/shortg \
+nauty/geng -b -C 11 | parallel --block 10K --pipe 'bazel-out/add_vertex | nauty/shortg' | nauty/shortg | bazel-out/g2dist \
     | parallel --pipe bazel-out/dbe -n | nauty/showg -A > output.txt
-nauty/geng -b -d2 11 | parallel --block 5K --pipe 'bazel-out/add_vertex | nauty/shortg' | nauty/shortg \
+nauty/geng -b -d2 11 | parallel --block 5K --pipe 'bazel-out/add_vertex | nauty/shortg' | nauty/shortg | bazel-out/g2dist \
     | parallel --block 5M --pipe bazel-out/dbe -n | nauty/showg -A > output.txt
 ```
 
