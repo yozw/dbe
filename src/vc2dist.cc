@@ -7,6 +7,7 @@ Example usage:
 **/
 
 #include "common.h"
+#include "graphs.h"
 #include <iostream>
 #include <math.h>
 #include <sstream>
@@ -37,10 +38,10 @@ int main(int argc, char *argv[]) {
   std::cerr << "." << std::endl;
 
   int index = 0;
-  while (!std::cin.eof()) {
-    std::string line;
-    std::getline(std::cin, line);
-    std::stringstream stream(line);
+  boost::optional<std::string> line;
+  
+  while ((line = ReadLine())) {
+    std::stringstream stream(line.get());
     int num_edges;
     stream >> num_edges;
     int n = int(round(0.5 * (1.0 + sqrt(1.0 + 8 * num_edges))));

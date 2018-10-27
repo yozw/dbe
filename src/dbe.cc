@@ -71,12 +71,10 @@ std::string Values(const MetricSpaceInfo &info, int num_bridges) {
 
 bool ReadMetricSpace(Graph& graph, DistanceMatrix& distance_matrix, std::string& label) {
   boost::optional<std::string> line;
-  do {
-    line = ReadLine();
-    if (!line) {
-      return false;
-    }
-  } while (line.get().length() == 0);
+  line = ReadLine();
+  if (!line) {
+    return false;
+  }
 
   std::stringstream stream(line.get());
   int num_points;

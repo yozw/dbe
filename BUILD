@@ -13,7 +13,7 @@ cc_binary(
 cc_binary(
   name='vc2dist',
   srcs=['src/vc2dist.cc'],
-  deps=[':common'],
+  deps=[':common', ':graphs'],
 )
 
 py_test(
