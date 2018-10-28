@@ -18,8 +18,8 @@ and has the following hyperedges:
 * all sets {H, ac, ad}
 * all sets {V, ac, bc}
 
-The following is a "distance matrix" (in quotes because it doesn't respect the
-triangle inequality) corresponding to this hypergraph:
+The code in this directory was used to find the following "distance matrix" (in quotes
+because it doesn't respect the triangle inequality) corresponding to this hypergraph:
 
 ```
 H  | 0 5 | 4 5 6 | 4 5 6 | 4 5 6
@@ -38,4 +38,4 @@ ty | 5 8 | 5 6 7 | 2 3 4 | 1 0 1
 tz | 6 8 | 4 5 6 | 1 2 3 | 2 1 0
 ```
 
-This matrix has 10 lines and no might pair.
+This "metric space" corresponding to this matrix has 10 lines and no mighty pair.
