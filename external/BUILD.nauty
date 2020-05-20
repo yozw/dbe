@@ -12,5 +12,5 @@ cc_library(
   name='gtools',
   srcs=['gtools.c'],
   deps=[':headers'],
-  copts=['-Wsometimes-uninitialized']
+  copts=['-Wmaybe-uninitialized']
 )

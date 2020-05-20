@@ -4,6 +4,7 @@
 
 * Install Bazel.
 * Install Nauty.
+* Install Boost.
 * Clone this repo: `git clone https://github.com/yozw/dbe.git`.
 * Run `bazel build -c opt ...`.
 * To run unit tests: `bazel test -c opt ...`.
