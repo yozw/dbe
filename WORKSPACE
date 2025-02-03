@@ -22,3 +22,11 @@ bind(
     name = "gflags",
     actual = "@com_github_gflags_gflags//:gflags",
 )
+
+http_archive(
+    name = "boost",
+    urls = ["https://archives.boost.io/release/1.87.0/source/boost_1_87_0.tar.gz"],
+    sha256 = "f55c340aa49763b1925ccf02b2e83f35fdcf634c9d5164a2acb87540173c741d",
+    build_file='BUILD.boost',
+    strip_prefix='boost_1_87_0'
+)

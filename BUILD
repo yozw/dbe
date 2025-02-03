@@ -38,6 +38,8 @@ py_test(
 cc_binary(
   name='calc',
   srcs=['src/calc.cc'],
+  deps=['@boost//:headers'],
+  copts=['-I@boost/include']
 )
 
 cc_library(
@@ -51,7 +53,7 @@ cc_library(
   name='graphs',
   srcs=['src/graphs.cc'],
   hdrs=['src/graphs.h'],
-  deps=[':common', '@nauty//:headers', '@nauty//:gtools'],
+  deps=[':common', '@nauty//:headers', '@nauty//:gtools', '@boost//:headers'],
   copts=['-Inauty']
 )
 
@@ -59,7 +61,7 @@ cc_library(
   name='graphs_adj',
   srcs=['src/graphs.cc'],
   hdrs=['src/graphs.h'],
-  deps=[':common', '@nauty//:headers', '@nauty//:gtools'],
+  deps=[':common', '@nauty//:headers', '@nauty//:gtools', '@boost//:headers'],
   copts=['-Inauty', '-DUSE_ADJACENCY_LIST']
 )
 
